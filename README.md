@@ -117,7 +117,7 @@ In this PA, we are using `compareTo()` to determine  the order of the elements. 
 In the following code snippet, we use the `Character` class. `compareTo()` for this class compares the objects based on their natural ordering: characters with lower ASCII values (for letters with the same case, earlier in the alphabet is equivalent to a lower ASCII value). 
 
 ```java
-Character smallElement = Character.valueOf('c'); // Character.valueOf('a') is an equivalent (but more efficient) way of getting new Character('a')
+Character smallElement = Character.valueOf('c'); // Character.valueOf('c') is an equivalent (but more efficient) way of getting new Character('c')
 Character bigElement = Character.valueOf('y'); 
 System.out.println(smallElement.compareTo(bigElement)); // prints out a negative number because calling object (smallElement) is smaller than the argument (bigElement)
 System.out.println(bigElement.compareTo(smallElement)); // prints out a positive number because calling object (bigElement) is bigger than the argument (smallElement)
@@ -139,7 +139,7 @@ protected List<E> list;
 #### `protected List<E> list`
 
 - This list is the underlying data structure of `MyMinHeap`. This instance variable should contain an `ArrayList` since we are implementing an array-based heap. Note that we are using a `List` reference for this variable, so we have access to all of the list ADT's operations, but our underlying data structure is the `ArrayList`, which will have fast random access and insertion at the end, which are actually the only two operations we need. 
-- You can assume that `list` will never be `null` unless your own code sets it to be. You should also assume that `list` will always define a valid heap structure, even if your other methods would cause violations to the heap properties. When testing your code, it will be expected that we can populate `list` with a heap and that your methods will independently perform the specified operations on it. 
+- You can assume that `list` will never be `null` unless your own code sets it to be. You should also assume that `list` will always define a valid heap structure when a call to a non-helper method is made, but note that our operations generally break the heap structure and then fix it. When testing your code, it will be expected that we can populate `list` with a heap and that your methods will independently perform the specified operations on it. 
 
 ---
 
@@ -206,17 +206,17 @@ Let's implement some helper methods. You should find these methods useful when i
 
 #### `protected int getMinChildIdx(int index)`
 - Return the index of the smaller child of the element at `index`. **If the two children are equal, return the index of the left child**. If the node at the specified index is a leaf (has no children), return `-1`. 
-- Note that it's possible for a single node in our heap to have only one child. In this case, return the index of the left child (we know that this is a heap so all nodes are as far left as possible). For this method, it is safe to assume that the heap will have the completeness property whenever this is called. 
+- Note that it's also possible for a single node in our heap to have only one child. In this case, return the index of the left child (we know that this is a heap so all nodes are as far left as possible). For this method, it is safe to assume that the heap will have the completeness property whenever this is called. 
 - This method has undefined behavior if `index` is out of bounds, but as stated above, we assume that we will only call this method from our own methods and thus only make valid calls. There is no need to handle this case. 
 - This method depends on what is currently in `list` but should not make any changes to `list`. 
 
 #### `protected void percolateUp(int index)`
-- Percolate the element at the parameter `index` up until no heap properties are violated by this element (this element is no greater than its children and its parent is no greater than it; do not check the heap properties for unrelated parts of the heap). Do this by swapping the element with its parent as needed. 
+- Percolate the element at the parameter `index` up until no heap properties are violated by this element (the heap properties will not be violated once this element's parent is no greater than it). Do this by swapping the element with its parent as needed. 
 - Note the case where the element that you are percolating is equal to the parent. In this case, the heap property requiring that a node be no greater than its children is already satisfied, so you should **not** swap the element you are percolating with the parent. 
 - This method has undefined behavior if `index` is out of bounds, but as stated above, we assume that we will only call this method from our own methods and thus only make valid calls. There is no need to handle this case. 
 
 #### `protected void percolateDown(int index)`
-- Percolate the element at the parameter `index` down until no heap properties are violated by this element (this element is no greater than its children and its parent is no greater than it; do not check the heap properties for unrelated parts of the heap). Swapping with the bigger child would cause a violation, so always swap places with the smaller child. If both children are equal and swapping is needed, **swap with the left child.** 
+- Percolate the element at the parameter `index` down until no heap properties are violated by this element (the heap properties will not be violated once this element is no greater than its children). If swapping is needed, then swapping with the bigger child would typically cause a violation of the key order property, so always swap places with the smaller child. If both children are equal and swapping is needed, **swap with the left child.** 
 - Note the case where the element that you are percolating is equal to the smaller child. In this case, the heap property requiring that a node be no greater than its children is already satisfied, so you should **not** swap the element you are percolating with the child. 
 - This method has undefined behavior if `index` is out of bounds, but as stated above, we assume that we will only call this method from our own methods and thus only make valid calls. There is no need to handle this case. 
 
@@ -312,12 +312,12 @@ These are the functions that we want our min-heap to support.
 <br>
 
 #### `public E getMin()` 
-- Return the root (smallest) element of the heap. 
-- If the heap is empty, return `null` instead.
+- Return the root (this will be the smallest) element of the heap. 
+- If the heap is empty, return `null` instead. Note that here, and in all similar methods, we can safely return `null` because `null` is not a valid element for `MyMinHeap` and therefore, returning `null` can have the special meaning that the min-heap is empty. 
 
 #### `public E remove()` 
-- Remove and return the root (smallest) element in the heap. See the [`deleteIndex()` specifications](#protected-e-deleteindexint-index) for how to fix the heap after removal. 
-- If the heap is empty, return `null` (and do no deletion) instead. Note that here, and in all similar methods, we can safely return `null` because `null` is not a valid element for `MyMinHeap` and therefore, returning `null` can have the special meaning that the min-heap is empty. 
+- Remove and return the root (this will be the smallest) element in the heap. See the [`deleteIndex()` specifications](#protected-e-deleteindexint-index) for how to fix the heap after removal. 
+- If the heap is empty, return `null` (and do no deletion) instead. 
 
 #### `public int size()` 
 - Return the number of elements in this min-heap.
@@ -336,18 +336,18 @@ public class MyPriorityQueue<E extends Comparable<E>>
 ```
 A priority queue is a queue where elements are sorted by their priority. Popping/dequeuing from the priority queue should always yield an element with the highest priority. In other words, elements with higher priority will be closer to the front of the priority queue. 
 
-Our `MyPriorityQueue` implementation will be using a `MyMinHeap` backend. Our underlying data structure is a min-heap, so a smaller elements (in the `compareTo()` sense) have higher priorities. The root node of the min-heap is the one with the highest priority and is also the smallest element in the min-heap. 
+Our `MyPriorityQueue` implementation will be using a `MyMinHeap` backend. Our underlying data structure is a min-heap, so smaller elements (in the `compareTo()` sense) have higher priorities. The root node of the min-heap is the one with the highest priority and is also the smallest element in the min-heap. 
 
 
 ### MyPriorityQueue Instance Variables
 ```java 
 protected MyMinHeap<E> heap;
 ```
-- We will be using a single instance variable for our `MyPriorityQueue`. This `MyMinHeap` will contain all information we need to keep track of our heap. You should only use the `MyMinHeap` "core" methods in your `MyPriorityQueue` implementation. Do not directly access `heap.list` (treat it as if it were a private instance variable). 
+- We will be using a single instance variable for our `MyPriorityQueue`. This `MyMinHeap` will contain all information we need to keep track of our heap. You should only use the `MyMinHeap` "core" methods in your `MyPriorityQueue` implementation. Do not directly access `heap.list` in your implementation of `MyPriorityQueue` (treat it as if it were a private instance variable). 
 - **Do not change this instance variable and do not add any extra instance variables. You can still have `private static final` variables for your constants, but do not add any other static variables.**  
 
 #### `protected MyMinHeap<E> heap`
-- This heap holds and sorts all elements for our priority queue. Since we are using our `MyMinHeap` to store our elements, `null`s are not allowed in this priority queue. 
+- This heap holds and sorts all elements for our priority queue. Since we are using our `MyMinHeap` to store our elements, `null` is not allowed in this priority queue. 
 
 ### MyPriorityQueue Constructors
 ```java 
@@ -372,14 +372,14 @@ public void clear();
 ```
 #### `public void push(E element)` 
 - Throw a `NullPointerException` and do not add to the priority queue if `element` is `null`. 
-- Otherwise, add `element` to this priority queue. 
+- Otherwise, add `element` to this priority queue. `heap` should be fixed accordingly. 
 
 #### `public E peek()` 
 - Return the element with the highest priority. Remember that this should be whichever element our min-heap says is the smallest element. 
 - If the priority queue is empty, return `null` instead.  
 
 #### `public E pop()` 
-- Remove and return the element with the highest priority. Remember that this should be whichever element our min-heap says is the smallest element. 
+- Remove and return the element with the highest priority. Remember that this should be whichever element our min-heap says is the smallest element. `heap` should be fixed accordingly. 
 - If the priority queue is empty, return `null` (and do no removal) instead.  
 
 #### `public int getLength()` 
@@ -404,7 +404,7 @@ public void clear();
                 <li>MyMinHeap no-arg constructor: initializes <code>list</code> to be empty. </li>
                 <li>MyMinHeap second constructor: call with some <code>Collection</code>, initializes <code>list</code> appropriately. </li>
                     <br>
-                    <b> For these helper methods (in the sanity test and their respective testers), <code>list</code> may not be initially valid and also may not be valid afterward. Remember that our helper methods do not want to check as they are used in the middle of other operations. Even though some of these <code>list</code> states will never be valid even in the middle of an operation of your implementation, they may be possible in someone else's implementation, so the helper methods should not perform any checks. </b>
+                    <b> For these helper methods (in the sanity test and their respective testers), <code>list</code> may not be initially valid and also may not be valid afterward. Remember that our helper methods do not want to check as these helper methods are used in the middle of other operations. Even though some of these <code>list</code> states will never be valid even in the middle of an operation of your implementation, they may be possible in someone else's implementation, so the helper methods should not perform any checks. </b>
                     <li>MyMinHeap swap: <code>list</code> is {3,1,2}, call with args (0,1), <code>list</code> becomes {1,3,2}. </li>
                     <li>MyMinHeap getParentIdx: call with args (1), returns 0. </li>
                     <li>MyMinHeap getLeftChildIdx: call with args (0), returns 1. </li>
@@ -654,11 +654,11 @@ We will grade your code style in `MyMinHeap.java` and `MyPriorityQueue.java` tho
 2. Class headers
 3. Method headers
 4. Inline comments
-5. Proper indentation
+5. Proper indentation (do not intermingle spaces and tabs for indentation)
 6. Descriptive variable names
 7. No magic numbers
 8. Reasonably short methods (if you have implemented each method according to specification in this write-up, you’re fine). This is not enforced as strictly.
-9. Lines shorter than 80 characters (note, tabs will be counted as 4 characters)
+9. Lines shorter than 80 characters (note, tabs will be counted as 4 characters toward this limit. It is a good idea to set your tab width/size to be 4)
 10. Javadoc conventions (@param, @return tags, /** comments */, etc.)
 
 A full [style guide](https://sites.google.com/view/cse12spr20/style-guide) can be found here. If you need any clarifications, feel free to ask on Piazza.
