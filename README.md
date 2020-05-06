@@ -46,9 +46,10 @@ If you are still unsure about the ieng6 server ask a tutor or TA and they can he
 
 
 #### Getting the Starter Code
-Get the starter code from GitHub [here](to be updated). You have two options: 
+Get the starter code from GitHub [here](https://github.com/CaoAssignments/cse12-sp20-pa6-PriorityQueue-starter). You have two options: 
 1.  Use the command line. In your terminal, run the following: `git clone https://github.com/CaoAssignments/cse12-sp20-pa6-PriorityQueue-starter.git`  
 2.  Download the repo as a zipped folder.
+
 ![](https://i.imgur.com/SjXKMV7.png)
 
 When you run `javac` and `java` make sure you are in the same directory where the files are located. This is called your working directory. For this assignment, you will need to utilize the .jar files in the `libs` directory in the starter code. This will be similar to how you compiled and executed in PA1, PA2, PA3, PA4, and PA5. 
