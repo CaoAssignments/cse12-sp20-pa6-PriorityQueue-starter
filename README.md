@@ -47,7 +47,7 @@ If you are still unsure about the ieng6 server ask a tutor or TA and they can he
 
 #### Getting the Starter Code
 Get the starter code from GitHub [here](to be updated). You have two options: 
-1.  Use the command line. In your terminal, run the following: `git clone to be updated`  
+1.  Use the command line. In your terminal, run the following: `git clone https://github.com/CaoAssignments/cse12-sp20-pa6-PriorityQueue-starter.git`  
 2.  Download the repo as a zipped folder.
 ![](https://i.imgur.com/SjXKMV7.png)
 
